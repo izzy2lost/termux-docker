@@ -16,22 +16,40 @@ jobs:
           username: izzy2lost
           password: ${{ secrets.IZZY_DOCKER_TOKEN }}
 
-      - name: Download ARM Image
+      # Load and push ARM image
+      - name: Download and Load ARM Image
         run: |
-          wget https://github.com/izzy2lost/termux-docker/releases/download/arm/termux-docker-arm.tar
-          docker load -i termux-docker-arm.tar
+          # Download the ARM image
+          wget https://github.com/izzy2lost/termux-docker/releases/download/arm/termux-docker-arm.tar -O arm.tar
+          
+          # Validate the .tar file exists
+          if [ ! -f arm.tar ]; then
+            echo "ARM image download failed!"
+            exit 1
+          fi
 
-      - name: Push ARM Image
-        run: |
+          # Load the image (use docker import instead of load if the tar was created with docker export)
+          docker load -i arm.tar || docker import arm.tar termux-docker-arm:latest
+
+          # Tag and push
           docker tag termux-docker-arm:latest izzy2lost/termux-docker:arm
           docker push izzy2lost/termux-docker:arm
 
-      - name: Download AArch64 Image
+      # Load and push AArch64 image
+      - name: Download and Load AArch64 Image
         run: |
-          wget https://github.com/izzy2lost/termux-docker/releases/download/aarch64/termux-docker-aarch64.tar
-          docker load -i termux-docker-aarch64.tar
+          # Download the AArch64 image
+          wget https://github.com/izzy2lost/termux-docker/releases/download/aarch64/termux-docker-aarch64.tar -O aarch64.tar
+          
+          # Validate the .tar file exists
+          if [ ! -f aarch64.tar ]; then
+            echo "AArch64 image download failed!"
+            exit 1
+          fi
 
-      - name: Push AArch64 Image
-        run: |
+          # Load the image
+          docker load -i aarch64.tar || docker import aarch64.tar termux-docker-aarch64:latest
+
+          # Tag and push
           docker tag termux-docker-aarch64:latest izzy2lost/termux-docker:aarch64
           docker push izzy2lost/termux-docker:aarch64
