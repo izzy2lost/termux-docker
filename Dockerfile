@@ -1,55 +1,35 @@
 FROM ubuntu:latest
 
-# Install base dependencies
+# Install cross-compilation tools and dependencies
 RUN apt update && apt install -y \
-    proot \
+    build-essential \
     git \
     wget \
-    curl \
-    unzip \
     python3 \
-    file \
-    bash \
-    xz-utils \
+    make \
+    zip \
+    unzip \
+    clang \
+    binutils \
+    libglvnd-dev \
+    android-sdk-platform-tools \
+    gcc-arm-linux-gnueabihf \
+    g++-arm-linux-gnueabihf \
+    libc6-dev-armhf-cross \
     && rm -rf /var/lib/apt/lists/*
 
-# Create Termux root directory
-RUN mkdir -p /termux
+# Set up Android NDK
+RUN mkdir -p /opt/android-ndk && \
+    wget https://dl.google.com/android/repository/android-ndk-r25b-linux.zip -O /tmp/ndk.zip && \
+    unzip /tmp/ndk.zip -d /opt/android-ndk && \
+    rm /tmp/ndk.zip
 
-# Download and extract Termux bootstrap from GitHub
-RUN wget https://github.com/termux/termux-packages/releases/latest/download/bootstrap-$(uname -m).zip -O /tmp/bootstrap.zip && \
-    unzip /tmp/bootstrap.zip -d /termux && \
-    rm /tmp/bootstrap.zip
+# Set environment variables
+ENV ANDROID_NDK_HOME=/opt/android-ndk/android-ndk-r25b
+ENV PATH="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH}"
 
-# Set up basic environment
-RUN echo "export TERMUX=/termux" >> /root/.bashrc && \
-    echo "export PATH=\$PATH:/termux/usr/bin" >> /root/.bashrc && \
-    echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/termux/usr/lib" >> /root/.bashrc
-
-# Install required Termux packages through proot
-RUN proot -b /proc -b /dev -b /sys \
-    -r /termux \
-    /termux/usr/bin/bash -c " \
-    apt update && \
-    apt upgrade -y && \
-    apt install -y \
-        git \
-        wget \
-        make \
-        python \
-        getconf \
-        zip \
-        apksigner \
-        clang \
-        binutils \
-        libglvnd-dev \
-        aapt \
-        which \
-        ndk-multilib \
-        termux-exec \
-        libandroid-support \
-    && apt clean"
-
-# Set working directory and entrypoint
+# Create working directory
 WORKDIR /workspace
-ENTRYPOINT ["proot", "-b", "/proc", "-b", "/dev", "-b", "/sys", "-r", "/termux", "/termux/usr/bin/bash", "-l"]
+
+# Set entrypoint
+ENTRYPOINT ["/bin/bash"]
