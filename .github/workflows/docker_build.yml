@@ -14,7 +14,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           username: izzy2lost
-          password: ${{ secrets.IZZY_DOCKER_PASSWORD }}
+          password: ${{ secrets.IZZY_DOCKER_TOKEN }}
 
       - name: Download ARM Image
         run: |
