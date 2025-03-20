@@ -12,7 +12,7 @@ RUN apt update && apt install -y \
 RUN mkdir -p /termux
 
 # Download Termux bootstrap
-RUN wget https://github.com/termux/termux-packages/releases/download/bootstrap-2023.07.04/bootstrap-aarch64.zip \
+RUN wget https://github.com/termux/termux-packages/releases/download/bootstrap-2025.03.16-r1%2Bapt-android-7/bootstrap-aarch64.zip \
     -O /tmp/bootstrap.zip && \
     unzip /tmp/bootstrap.zip -d /termux && \
     rm /tmp/bootstrap.zip
