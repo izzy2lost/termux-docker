@@ -1,35 +1,38 @@
 FROM ubuntu:latest
 
-# Install cross-compilation tools and dependencies
+# Install host dependencies
 RUN apt update && apt install -y \
-    build-essential \
-    git \
+    proot \
     wget \
-    python3 \
-    make \
-    zip \
-    unzip \
-    clang \
-    binutils \
-    libglvnd-dev \
-    android-sdk-platform-tools \
-    gcc-arm-linux-gnueabihf \
-    g++-arm-linux-gnueabihf \
-    libc6-dev-armhf-cross \
+    xz-utils \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
-# Set up Android NDK
-RUN mkdir -p /opt/android-ndk && \
-    wget https://dl.google.com/android/repository/android-ndk-r25b-linux.zip -O /tmp/ndk.zip && \
-    unzip /tmp/ndk.zip -d /opt/android-ndk && \
-    rm /tmp/ndk.zip
+# Create Termux root directory
+RUN mkdir -p /termux
 
-# Set environment variables
-ENV ANDROID_NDK_HOME=/opt/android-ndk/android-ndk-r25b
-ENV PATH="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH}"
+# Download Termux bootstrap
+RUN wget https://github.com/termux/termux-packages/releases/download/bootstrap-2023.07.04/bootstrap-aarch64.zip \
+    -O /tmp/bootstrap.zip && \
+    unzip /tmp/bootstrap.zip -d /termux && \
+    rm /tmp/bootstrap.zip
 
-# Create working directory
-WORKDIR /workspace
+# Configure environment
+RUN echo 'export TERMUX=/termux' >> /etc/profile && \
+    echo 'export PATH=$PATH:/termux/usr/bin' >> /etc/profile && \
+    echo 'export LD_LIBRARY_PATH=/termux/usr/lib' >> /etc/profile
 
-# Set entrypoint
-ENTRYPOINT ["/bin/bash"]
+# Base Termux setup
+RUN proot -b /proc -b /dev -b /sys \
+    -r /termux \
+    /usr/bin/env -i \
+    HOME=/root \
+    TERM=$TERM \
+    PATH=/usr/bin:/usr/sbin \
+    /termux/usr/bin/bash -c \
+    "apt update && apt upgrade -y"
+
+# Entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
