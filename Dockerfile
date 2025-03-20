@@ -29,9 +29,6 @@ RUN echo "export TERMUX=/termux" >> /root/.bashrc && \
 # Install required Termux packages through proot
 RUN proot -b /proc -b /dev -b /sys \
     -r /termux \
-    /usr/bin/env -i \
-    HOME=/root \
-    PATH=/bin:/usr/bin:/sbin:/usr/sbin:/termux/usr/bin \
     /termux/usr/bin/bash -c " \
     apt update && \
     apt upgrade -y && \
