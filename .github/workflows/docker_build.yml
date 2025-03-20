@@ -1,12 +1,7 @@
 name: Push Pre-built Docker Images
 
 on:
-  push:
-    branches:
-      - main  # Or your desired branch
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   push_images:
