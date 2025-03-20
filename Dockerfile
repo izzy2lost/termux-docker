@@ -1,6 +1,6 @@
 FROM ubuntu:latest
 
-# Install required dependencies
+# Install dependencies
 RUN apt update && apt install -y \
     proot \
     git \
@@ -11,8 +11,9 @@ RUN apt update && apt install -y \
     bash \
     && rm -rf /var/lib/apt/lists/*
 
-# Manually install proot-distro
-RUN wget https://raw.githubusercontent.com/termux/proot-distro/main/proot-distro -O /usr/local/bin/proot-distro && \
+# Clone proot-distro from Termux and install it manually
+RUN git clone --depth=1 https://github.com/termux/proot-distro.git /opt/proot-distro && \
+    ln -s /opt/proot-distro/proot-distro /usr/local/bin/proot-distro && \
     chmod +x /usr/local/bin/proot-distro
 
 # Set entrypoint to bash
