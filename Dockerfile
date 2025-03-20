@@ -8,13 +8,15 @@ RUN apt update && apt install -y \
     curl \
     unzip \
     python3 \
+    file \
     bash \
     && rm -rf /var/lib/apt/lists/*
 
-# Clone proot-distro from Termux and install it manually
-RUN git clone --depth=1 https://github.com/termux/proot-distro.git /opt/proot-distro && \
-    cp /opt/proot-distro/proot-distro /usr/local/bin/proot-distro && \
-    chmod +x /usr/local/bin/proot-distro
+# Clone and install proot-distro
+RUN git clone https://github.com/termux/proot-distro.git /opt/proot-distro && \
+    cd /opt/proot-distro && \
+    chmod +x install.sh && \
+    ./install.sh
 
 # Set entrypoint to bash
 ENTRYPOINT ["/bin/bash"]
