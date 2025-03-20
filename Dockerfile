@@ -1,6 +1,6 @@
 FROM ubuntu:latest
 
-# Install base dependencies
+# Install host system dependencies
 RUN apt update && apt install -y \
     proot \
     git \
@@ -25,22 +25,28 @@ RUN wget https://termux.dev/termux-rootfs/termux-rootfs-latest.tar.xz && \
 RUN echo "export TERMUX=/termux" >> /root/.bashrc && \
     echo "export PATH=\$PATH:/termux/bin" >> /root/.bashrc
 
-# Install Termux packages through proot
+# Install required Termux packages through proot
 RUN proot -b /proc -b /dev -b /sys \
     -r /termux \
     /bin/bash -c " \
     apt update && \
     apt upgrade -y && \
     apt install -y \
-        clang \
-        make \
-        ndk-multilib \
         git \
+        wget \
+        make \
         python \
-        vim \
+        getconf \
         zip \
-        unzip \
+        apksigner \
+        clang \
+        binutils \
+        libglvnd-dev \
+        aapt \
+        which \
+        ndk-multilib \
         termux-exec \
+        libandroid-support \
     && apt clean"
 
 # Set working directory and entrypoint
