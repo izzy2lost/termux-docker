@@ -1,4 +1,4 @@
-name: Push Pre-built Docker Images
+name: Push Docker Images
 
 on:
   workflow_dispatch:
